@@ -23,7 +23,8 @@ func getInput() (string, uint, string) {
 	**	add "newTaskDescription"
 	**	update taskId "newTaskDescription"
 	**	delete taskId
-	**	mark taskId [in-progress, done]
+	**	mark-in-progress taskId
+	**	mark-done taskId
 	**	list [all, done, not-done, in-progress]
 	**	help
 	**	quit
@@ -41,15 +42,6 @@ func getInput() (string, uint, string) {
 	switch argv[0] {
 	case "help":
 		cmd = argv[0]
-		fmt.Println("Usage:")
-		fmt.Println("  add \"newTaskDescription\"                add a new task to the list")
-		fmt.Println("  update taskId \"newTaskDescription\"      update the description of a task")
-		fmt.Println("  delete taskId                           remove the task from the list")
-		fmt.Println("  mark-in-progress taskId                 change the status of the task to 'in-progress'")
-		fmt.Println("  mark-done taskId                        change the status of the task to 'done'")
-		fmt.Println("  list [all, done, not-done, in-progress] list the task by their status")
-		fmt.Println("  help                                    print this message")
-		fmt.Println("  quit                                    save changes and exit program")
 	case "add":
 		fallthrough
 	case "list":
@@ -92,7 +84,6 @@ func getInput() (string, uint, string) {
 		cmd = argv[0]
 	default:
 		cmd = "invalid"
-		fmt.Println("Invalid command")
 	}
 
 	return cmd, tid, desc

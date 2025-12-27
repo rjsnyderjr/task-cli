@@ -11,12 +11,15 @@ import (
 func readInJson(filename string) {
 	jsonFile, err := os.Open(filename)
 	if err != nil {
-		fmt.Printf("Starting new task list\n")
+		taskId = 0
 	} else {
 		defer jsonFile.Close()
-		fmt.Printf("Reading in previous task list\n")
 		byteValue, _ := io.ReadAll(jsonFile)
-		json.Unmarshal(byteValue, &tasks)
+		err = json.Unmarshal(byteValue, &tasks)
+		if err != nil {
+			fmt.Printf("Error reading json file %s\n", filename)
+			log.Fatal(err)
+		}
 	}
 	//fmt.Printf("%d tasks read in\n", len(tasks.Tasks))
 }
