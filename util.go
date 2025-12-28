@@ -1,71 +1,11 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
-	"os"
 	"slices"
 	"strconv"
-	"strings"
 	"time"
 )
-
-const PROMPT string = "task-cli>"
-
-func getInput() (string, uint, string) {
-	var argv []string = make([]string, 0)
-	var cmd string = ""
-	var tid uint = 0
-	var desc string = ""
-
-	/*
-	** Valid commands:
-	**	add "newTaskDescription"
-	**	update taskId "newTaskDescription"
-	**	delete taskId
-	**	mark-in-progress taskId
-	**	mark-done taskId
-	**	list [all, done, not-done, in-progress]
-	**	help
-	**	quit
-	 */
-
-	fmt.Printf("%s ", PROMPT)
-	reader := bufio.NewReader(os.Stdin)
-	input, _ := reader.ReadString('\n')
-	fields := strings.Fields(strings.TrimSpace(input))
-
-	for _, field := range fields {
-		argv = append(argv, strings.Trim(field, "\""))
-	}
-
-	switch argv[0] {
-	case "help":
-		cmd = argv[0]
-	case "add":
-		fallthrough
-	case "list":
-		cmd = argv[0]
-		desc = convDesc(argv[1:])
-	case "update":
-		desc = convDesc(argv[2:])
-		fallthrough
-	case "mark-in-progress":
-		fallthrough
-	case "mark-done":
-		fallthrough
-	case "delete":
-		cmd = argv[0]
-		tid = convTaskId(argv[1])
-	case "quit":
-		cmd = argv[0]
-	default:
-		cmd = "invalid"
-	}
-
-	//fmt.Printf("cmd: '%s' %d '%s'", cmd, tid, desc)
-	return cmd, tid, desc
-}
 
 /*
 ** Add a task to the list. No need to supply a taskID.
@@ -98,9 +38,14 @@ func addTask(description string) {
 ** the list, so it will not be able to be viewed or
 ** edited after a delete.
  */
-func deleteTask(taskid uint) {
+func deleteTask(taskid string) {
+	tid, err := convTaskId(taskid)
+	if err != nil {
+		fmt.Println("Error converting taskID")
+		return
+	}
 	for i, v := range tasks.Tasks {
-		if v.Id == taskid {
+		if v.Id == tid {
 			tasks.Tasks = slices.Delete(tasks.Tasks, i, i+1)
 			break
 		}
@@ -111,9 +56,14 @@ func deleteTask(taskid uint) {
 ** Updates a task description on the list indexed by the taskID.
 ** It also updates the updateAt time of the task.
  */
-func updateTask(taskid uint, description string) {
+func updateTask(taskid string, description string) {
+	tid, err := convTaskId(taskid)
+	if err != nil {
+		fmt.Println("Error converting taskID")
+		return
+	}
 	for i, v := range tasks.Tasks {
-		if v.Id == taskid {
+		if v.Id == tid {
 			tasks.Tasks[i].Description = description
 			tasks.Tasks[i].UpdatedAt = time.Now().Unix()
 			break
@@ -125,9 +75,14 @@ func updateTask(taskid uint, description string) {
 ** Marks a task by changing its status. The only valid
 ** status's to mark the task is, 'in-progress' or 'done'.
  */
-func markTask(taskid uint, status string) {
+func markTask(taskid string, status string) {
+	tid, err := convTaskId(taskid)
+	if err != nil {
+		fmt.Println("Error converting taskID")
+		return
+	}
 	for i, v := range tasks.Tasks {
-		if v.Id == taskid {
+		if v.Id == tid {
 			tasks.Tasks[i].Status = status
 			tasks.Tasks[i].UpdatedAt = time.Now().Unix()
 			break
@@ -148,7 +103,7 @@ func listTask(action string) {
 		fmt.Println("Invalid list option")
 		return
 	}
-	fmt.Println("=================================")
+	//fmt.Println("=================================")
 	for _, v := range tasks.Tasks {
 		if action == "not-done" {
 			if v.Status != "done" {
@@ -177,23 +132,10 @@ func printTask(v Task) {
 /*
 ** Convert the string input for taskID to a uint
  */
-func convTaskId(strTaskId string) uint {
+func convTaskId(strTaskId string) (uint, error) {
 	u64, err := strconv.ParseUint(strTaskId, 10, 32)
 	if err != nil {
-		return 0
+		return 0, err
 	}
-	return uint(u64)
-}
-
-/*
-** Convert a slice of strings to a single string.
- */
-func convDesc(argv []string) string {
-	desc := ""
-	spc := ""
-	for _, v := range argv {
-		desc = desc + spc + v
-		spc = " "
-	}
-	return desc
+	return uint(u64), nil
 }

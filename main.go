@@ -1,8 +1,8 @@
 package main
 
 import (
-	"flag"
 	"fmt"
+	"os"
 )
 
 const jsonFileName string = "tasks.json"
@@ -23,62 +23,93 @@ var taskId uint = 0
 var tasks Tasks
 
 /*
-** task-cli [-f taskfile.json]
-**	-f taskfile.json - option file to read in at startup. If nor file name is
-**	provided in the command line, then the tasks will be saved in tasks.json
+** task-cli
+**   add "TaskDescription"                   add a new task to the list
+**   update taskId "newTaskDescription"      update the description of a task
+**   delete taskId                           remove the task from the list
+**   mark-in-progress taskId                 change the status of the task to 'in-progress'
+**   mark-done taskId                        change the status of the task to 'done'
+**   list [all]                              list all tasks
+**   list done                               list tasks where status is 'done'
+**   list not-done                           list tasks where status is 'not done'
+**   list todo                               list tasks where status is 'todo'
+**   list in-progress                        list tasks where status is 'in-progress'
+**   help                                    show list of commands
 **
  */
 
 func main() {
-	notDone := true
-	changes := false
+	argc := len(os.Args)
 
-	fileName := flag.String("f", jsonFileName, "Tasks")
-	flag.Parse()
-
-	readInJson(*fileName)
-
-	for notDone {
-		cmd, tid, desc := getInput()
-
-		switch cmd {
-		case "list":
-			listTask(desc)
-		case "add":
-			addTask(desc)
-			changes = true
-		case "update":
-			updateTask(tid, desc)
-			changes = true
-		case "delete":
-			deleteTask(tid)
-			changes = true
-		case "mark-done":
-			markTask(tid, "done")
-			changes = true
-		case "mark-in-progress":
-			markTask(tid, "in-progress")
-			changes = true
-		case "help":
-			fmt.Println("Usage:")
-			fmt.Println("  add \"TaskDescription\"                   add a new task to the list")
-			fmt.Println("  update taskId \"newTaskDescription\"      update the description of a task")
-			fmt.Println("  delete taskId                           remove the task from the list")
-			fmt.Println("  mark-in-progress taskId                 change the status of the task to 'in-progress'")
-			fmt.Println("  mark-done taskId                        change the status of the task to 'done'")
-			fmt.Println("  list [all, done, not-done,              list the task by their status")
-			fmt.Println("        todo, in-progress]")
-			fmt.Println("  help                                    print this message")
-			fmt.Println("  quit                                    save changes and exit program")
-		case "quit":
-			notDone = false
-		default:
-			fmt.Println("Invalid command")
-		}
-
-		if changes {
-			writeOutJson(*fileName)
-			changes = false
-		}
+	if argc < 2 || argc > 4 {
+		fmt.Println("Invalid number of parameters")
+		os.Exit(1)
 	}
+
+	readInJson(jsonFileName)
+
+	progName := os.Args[0]
+
+	cmd := os.Args[1]
+
+	switch cmd {
+	case "list":
+		switch argc {
+		case 2:
+			listTask("")
+		case 3:
+			listTask(os.Args[2])
+		default:
+			fmt.Println("Invalid number of parameters")
+			os.Exit(1)
+		}
+	case "add":
+		if argc != 3 {
+			fmt.Println("Invalid number of parameters")
+			os.Exit(1)
+		}
+		addTask(os.Args[2])
+	case "update":
+		if argc != 4 {
+			fmt.Println("Invalid number of parameters")
+			os.Exit(1)
+		}
+		updateTask(os.Args[2], os.Args[3])
+	case "delete":
+		if argc != 3 {
+			fmt.Println("Invalid number of parameters")
+			os.Exit(1)
+		}
+		deleteTask(os.Args[2])
+	case "mark-done":
+		if argc != 3 {
+			fmt.Println("Invalid number of parameters")
+			os.Exit(1)
+		}
+		markTask(os.Args[2], "done")
+	case "mark-in-progress":
+		if argc != 3 {
+			fmt.Println("Invalid number of parameters")
+			os.Exit(1)
+		}
+		markTask(os.Args[2], "in-progress")
+	case "help":
+		fmt.Println("Usage:")
+		fmt.Printf("%s  add \"TaskDescription\"                   add a new task to the list\n", progName)
+		fmt.Printf("%s  update taskId \"newTaskDescription\"      update the description of a task\n", progName)
+		fmt.Printf("%s  delete taskId                           remove the task from the list\n", progName)
+		fmt.Printf("%s  mark-in-progress taskId                 change the status of the task to 'in-progress'\n", progName)
+		fmt.Printf("%s  mark-done taskId                        change the status of the task to 'done'\n", progName)
+		fmt.Printf("%s  list [all]                              list all tasks\n", progName)
+		fmt.Printf("%s  list todo                               list all todo tasks\n", progName)
+		fmt.Printf("%s  list done                               list all done tasks\n", progName)
+		fmt.Printf("%s  list not-done                           list all not-done tasks\n", progName)
+		fmt.Printf("%s  list in-progress                        list all in-progress tasks\n", progName)
+		fmt.Printf("%s  help                                    print this message", progName)
+	default:
+		fmt.Println("Invalid command")
+	}
+
+	writeOutJson(jsonFileName)
+	os.Exit(0)
 }
