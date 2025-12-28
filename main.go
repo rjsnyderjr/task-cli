@@ -30,12 +30,13 @@ var tasks Tasks
  */
 
 func main() {
+	notDone := true
+	changes := false
+
 	fileName := flag.String("f", jsonFileName, "Tasks")
 	flag.Parse()
 
 	readInJson(*fileName)
-
-	notDone := true
 
 	for notDone {
 		cmd, tid, desc := getInput()
@@ -45,14 +46,19 @@ func main() {
 			listTask(desc)
 		case "add":
 			addTask(desc)
+			changes = true
 		case "update":
 			updateTask(tid, desc)
+			changes = true
 		case "delete":
 			deleteTask(tid)
+			changes = true
 		case "mark-done":
 			markTask(tid, "done")
+			changes = true
 		case "mark-in-progress":
 			markTask(tid, "in-progress")
+			changes = true
 		case "help":
 			fmt.Println("Usage:")
 			fmt.Println("  add \"TaskDescription\"                   add a new task to the list")
@@ -60,7 +66,7 @@ func main() {
 			fmt.Println("  delete taskId                           remove the task from the list")
 			fmt.Println("  mark-in-progress taskId                 change the status of the task to 'in-progress'")
 			fmt.Println("  mark-done taskId                        change the status of the task to 'done'")
-			fmt.Println("  list [all, done, not-done,               list the task by their status")
+			fmt.Println("  list [all, done, not-done,              list the task by their status")
 			fmt.Println("        todo, in-progress]")
 			fmt.Println("  help                                    print this message")
 			fmt.Println("  quit                                    save changes and exit program")
@@ -69,7 +75,10 @@ func main() {
 		default:
 			fmt.Println("Invalid command")
 		}
-	}
 
-	writeOutJson(*fileName)
+		if changes {
+			writeOutJson(*fileName)
+			changes = false
+		}
+	}
 }

@@ -1,3 +1,2 @@
-newtasks.json
-tasks.json
-task-cli.exe
+*.json
+*.exe
