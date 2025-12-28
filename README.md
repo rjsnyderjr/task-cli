@@ -21,7 +21,7 @@ If no -f option is specified, then task-cli will save the default file, 'tasks.j
 
 task-cli has a help command that will display the command available.
 
-
+```
 task-cli> help
 Usage:
   add "TaskDescription"                   add a new task to the list
@@ -33,4 +33,4 @@ Usage:
         todo, in-progress]
   help                                    print this message
   quit                                    save changes and exit program
-
+```
