@@ -55,12 +55,13 @@ func main() {
 			markTask(tid, "in-progress")
 		case "help":
 			fmt.Println("Usage:")
-			fmt.Println("  add \"newTaskDescription\"                add a new task to the list")
+			fmt.Println("  add \"TaskDescription\"                   add a new task to the list")
 			fmt.Println("  update taskId \"newTaskDescription\"      update the description of a task")
 			fmt.Println("  delete taskId                           remove the task from the list")
 			fmt.Println("  mark-in-progress taskId                 change the status of the task to 'in-progress'")
 			fmt.Println("  mark-done taskId                        change the status of the task to 'done'")
-			fmt.Println("  list [all, done, not-done, in-progress] list the task by their status")
+			fmt.Println("  list [all, done, not-done,               list the task by their status")
+			fmt.Println("        todo, in-progress]")
 			fmt.Println("  help                                    print this message")
 			fmt.Println("  quit                                    save changes and exit program")
 		case "quit":
