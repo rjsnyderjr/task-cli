@@ -22,6 +22,13 @@ type Task struct {
 var taskId uint = 0
 var tasks Tasks
 
+/*
+** task-cli [-f taskfile.json]
+**	-f taskfile.json - option file to read in at startup. If nor file name is
+**	provided in the command line, then the tasks will be saved in tasks.json
+**
+ */
+
 func main() {
 	fileName := flag.String("f", jsonFileName, "Tasks")
 	flag.Parse()
